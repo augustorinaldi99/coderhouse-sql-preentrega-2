@@ -26,9 +26,8 @@ CREATE TABLE ventas (
 
 
 -- 2. Carga inicial de datos
-SELECT COUNT(*) FROM public.clientes;
-
 BEGIN;
+
 INSERT INTO public.clientes (email)
 VALUES
     ('ana.garcia@example.com'),
@@ -36,15 +35,7 @@ VALUES
     ('carla.lopez@example.com'),
     ('diego.martin@example.com'),
     ('elena.suarez@example.com');
-COMMIT;
 
-SELECT id_cliente, email
-FROM public.clientes
-ORDER BY id_cliente;
-
-SELECT COUNT(*) FROM public.productos;
-
-BEGIN;
 INSERT INTO public.productos (nombre, categoria, precio, stock)
 VALUES
     ('Alimento adulto 3 kg', 'Alimento', 12900.00, 20),
@@ -52,23 +43,7 @@ VALUES
     ('Collar ajustable', 'Accesorios', 7500.00, 10),
     ('Correa de nylon', 'Accesorios', 6200.00, 12),
     ('Pelota de goma', 'Juguetes', 3200.00, 25);
-COMMIT;
 
-SELECT id_producto, nombre, categoria, precio, stock
-FROM public.productos
-ORDER BY id_producto;
-
-SELECT COUNT(*) FROM public.ventas;
-
-SELECT id_cliente, email
-FROM public.clientes
-ORDER BY id_cliente;
-
-SELECT id_producto, nombre
-FROM public.productos
-ORDER BY id_producto;
-
-begin;
 insert into public.ventas (id_cliente, id_producto, fecha_venta, cantidad)
 values
  	(1, 1, '2026-10-01', 2),
@@ -77,7 +52,26 @@ values
     (4, 4, '2026-10-04', 1),
     (5, 5, '2026-10-05', 2),
     (1, 5, '2026-10-06', 1);
+
 COMMIT;
+
+SELECT COUNT(*) FROM public.clientes;
+
+SELECT id_cliente, email
+FROM public.clientes
+ORDER BY id_cliente;
+
+SELECT COUNT(*) FROM public.productos;
+
+SELECT id_producto, nombre, categoria, precio, stock
+FROM public.productos
+ORDER BY id_producto;
+
+SELECT COUNT(*) FROM public.ventas;
+
+SELECT id_producto, nombre
+FROM public.productos
+ORDER BY id_producto;
 
 SELECT id_venta, id_cliente, id_producto, fecha_venta, cantidad
 FROM public.ventas
@@ -92,9 +86,11 @@ WHERE id_cliente = 1
   AND cantidad = 1;
 
 begin;
+
 delete from public.ventas 
 where id_venta = 6 
 RETURNING id_venta, id_cliente, id_producto, fecha_venta, cantidad;
+
 commit;
 
 select count(*) as cantidad_de_ventas from public.ventas;
@@ -107,10 +103,12 @@ where categoria = 'Alimento'
 order by id_producto;
 
 begin;
+
 update public.productos
 set precio = round(precio * 1.10, 2)
 where categoria = 'Alimento'
 returning id_producto, nombre, precio;
+
 commit;
 
 -- 5. Verificaciones

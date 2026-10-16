@@ -1,9 +1,9 @@
--- PRE-ENTREGA 2: TABLAS, RESTRICCIONES Y DATOS INICIALES
+-- PRE-ENTREGA 2: TABLAS PRINCIPALES CON RESTRICCIONES Y DATOS INICIALES
 
--- FASE 0: ejecutar conectado a la base postgres.
+-- FASE 0: conectado a la base postgres, ejecutar esta sentencia por separado.
 CREATE DATABASE retail_project;
 
--- Luego, en DBeaver, conectarse a retail_project
+-- Después, conectarse a retail_project en DBeaver
 -- y ejecutar desde la sección 1.
 
 
@@ -41,9 +41,11 @@ CREATE TABLE public.ventas (
 
 
 -- 2. CARGA INICIAL DE DATOS
--- Cinco INSERT por tabla, dentro de una única transacción.
+-- Las inserciones se ejecutan dentro de una única transacción.
 
 BEGIN;
+
+-- Clientes: cinco sentencias INSERT.
 
 INSERT INTO public.clientes (email)
 VALUES ('ana.garcia@example.com');
@@ -61,6 +63,8 @@ INSERT INTO public.clientes (email)
 VALUES ('elena.suarez@example.com');
 
 
+-- Productos: cinco sentencias INSERT.
+
 INSERT INTO public.productos (nombre, categoria, precio, stock)
 VALUES ('Alimento adulto 3 kg', 'Alimento', 12900.00, 20);
 
@@ -77,6 +81,9 @@ INSERT INTO public.productos (nombre, categoria, precio, stock)
 VALUES ('Pelota de goma', 'Juguetes', 3200.00, 25);
 
 
+-- Ventas: seis sentencias INSERT.
+-- La sexta es la venta de prueba que se eliminará más adelante.
+
 INSERT INTO public.ventas (id_cliente, id_producto, fecha_venta, cantidad)
 VALUES (1, 1, DATE '2026-10-01', 2);
 
@@ -92,14 +99,13 @@ VALUES (4, 4, DATE '2026-10-04', 1);
 INSERT INTO public.ventas (id_cliente, id_producto, fecha_venta, cantidad)
 VALUES (5, 5, DATE '2026-10-05', 2);
 
--- Venta adicional de prueba que se eliminará en la sección 4.
 INSERT INTO public.ventas (id_cliente, id_producto, fecha_venta, cantidad)
 VALUES (1, 5, DATE '2026-10-06', 1);
 
 COMMIT;
 
 
--- 3. VERIFICACIÓN DE LOS DATOS INSERTADOS
+-- 3. VERIFICACIÓN DE LA CARGA INICIAL
 
 SELECT id_cliente, email
 FROM public.clientes
@@ -119,9 +125,9 @@ SELECT
     (SELECT COUNT(*) FROM public.ventas) AS cantidad_ventas;
 
 
--- 4. ELIMINACIÓN DE LA VENTA DE PRUEBA
+-- 4. ELIMINACIÓN DE UNA VENTA ESPECÍFICA
 
--- Verificar el registro antes de eliminarlo.
+-- Se verifica la venta antes de eliminarla.
 SELECT id_venta, id_cliente, id_producto, fecha_venta, cantidad
 FROM public.ventas
 WHERE id_venta = 6;
@@ -135,9 +141,9 @@ RETURNING id_venta, id_cliente, id_producto, fecha_venta, cantidad;
 COMMIT;
 
 
--- 5. ACTUALIZACIÓN DEL PRECIO POR CATEGORÍA
--- Aumenta un 10 % el precio de los productos de la categoría Alimento.
--- La subconsulta identifica los productos que se van a actualizar.
+-- 5. ACTUALIZACIÓN DE PRECIOS POR CATEGORÍA
+-- Se aumenta un 10 % el precio de los productos de la categoría Alimento.
+-- La subconsulta identifica los productos de esa categoría.
 
 SELECT id_producto, nombre, categoria, precio
 FROM public.productos
@@ -149,11 +155,11 @@ BEGIN;
 UPDATE public.productos AS p
 SET precio = ROUND(p.precio * 1.10, 2)
 WHERE p.id_producto IN (
-    SELECT id_producto
-    FROM public.productos
-    WHERE categoria = 'Alimento'
+    SELECT sub.id_producto
+    FROM public.productos AS sub
+    WHERE sub.categoria = 'Alimento'
 )
-RETURNING p.id_producto, p.nombre, p.categoria, p.precio;
+RETURNING id_producto, nombre, categoria, precio;
 
 COMMIT;
 
